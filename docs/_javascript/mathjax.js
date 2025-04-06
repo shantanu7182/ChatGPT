@@ -1,3 +1,4 @@
+// Configure MathJax for inline and display math rendering
 window.MathJax = {
     tex: {
         inlineMath: [["\\(", "\\)"]],
@@ -6,11 +7,19 @@ window.MathJax = {
         processEnvironments: true
     },
     options: {
-        ignoreHtmlClass: ".*|",
-        processHtmlClass: "arithmatex"
+        ignoreHtmlClass: ".*|",  // Ignore all HTML classes
+        processHtmlClass: "arithmatex"  // Only process elements with this class
     }
 };
 
-document$.subscribe(() => {
-    MathJax.typesetPromise()
-})
+// Assuming RxJS is available
+const document$ = fromEvent(document, 'DOMContentLoaded');
+
+// Trigger MathJax rendering after DOM content is loaded or changes
+document$.pipe(
+    debounceTime(300)  // Wait for 300ms after the last change to avoid unnecessary calls
+).subscribe(() => {
+    MathJax.typesetPromise().catch((err) => {
+        console.error('MathJax rendering failed:', err);
+    });
+});
